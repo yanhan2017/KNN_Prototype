@@ -88,7 +88,7 @@ class classifier():
                 C[j] = self.lambda1+len(list(set(self.neighbor[j]) & set(y_idx2)))
             self.C[:,i] = C
             
-            objective = cvx.Minimize(C*alpha+sum(zeta[y_idx1]))
+            objective = cvx.Minimize(alpha*C.reshape(self.n,1)+sum(zeta[y_idx1]))
             constraints = []
             for j in y_idx1:
                 constraints.append(np.sum(alpha[self.neighbor[j]]) >= 1-zeta[j])
@@ -142,8 +142,9 @@ class classifier():
             min_distance = []
             row = row.reshape(1,self.m)
             for i in range(self.nclass): 
-                temp_distance = distance.cdist(row,self.X[self.result[i],:],'euclidean')
-                min_distance.append(temp_distance.min())
+                if self.result[i]:
+                    temp_distance = distance.cdist(row,self.X[self.result[i],:],'euclidean')
+                    min_distance.append(temp_distance.min())
             min_value = min(min_distance)
             if min_value > self.epsilon:
                 cover_error += 1
